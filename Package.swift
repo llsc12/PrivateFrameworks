@@ -4,17 +4,17 @@
 import PackageDescription
 import Foundation
 
-//let sourcesDirectory = URL(fileURLWithPath: #file)
-//    .deletingLastPathComponent()
-//    .appendingPathComponent("Sources")
-//
-//func tbd(for name: String) -> String {
-//  sourcesDirectory
-//    .appending(path: "CFrameworks")
-//    .appending(path: "tbds")
-//    .appending(component: "\(name).tbd")
-//    .path()
-//}
+let sourcesDirectory = URL(fileURLWithPath: #file)
+    .deletingLastPathComponent()
+    .appendingPathComponent("Sources")
+
+func tbd(for name: String) -> String {
+  sourcesDirectory
+    .appending(path: "CFrameworks")
+    .appending(path: "tbds")
+    .appending(component: "\(name).tbd")
+    .path()
+}
 //
 //let products: [PackageDescription.Product] = {
 //  let dir = try! FileManager.default.contentsOfDirectory(at: sourcesDirectory, includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
@@ -79,7 +79,14 @@ let package = Package(
         "Dictionary"
       ]
     ),
-    .target(name: "Calculate", dependencies: [.byName(name: "CFrameworks"), .byName(name: "ObjCShims")]),
-    .target(name: "Dictionary", dependencies: [.byName(name: "CFrameworks"), .byName(name: "ObjCShims")])
+    .target(
+      name: "Calculate",
+      dependencies: [.byName(name: "CFrameworks"), .byName(name: "ObjCShims")],
+      linkerSettings: [.unsafeFlags([tbd(for: "Calculate")])]
+    ),
+    .target(
+      name: "Dictionary",
+      dependencies: [.byName(name: "CFrameworks"), .byName(name: "ObjCShims")]
+    )
   ]
 )
