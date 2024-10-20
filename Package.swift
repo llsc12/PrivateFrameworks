@@ -79,11 +79,7 @@ let package = Package(
         "Dictionary"
       ]
     ),
-    .target(
-      name: "Calculate",
-      dependencies: [.byName(name: "CFrameworks"), .byName(name: "ObjCShims")],
-      linkerSettings: [.unsafeFlags([tbd(for: "Calculate")])]
-    ),
+    .target(name: "Calculate"),
     .target(
       name: "Dictionary",
       dependencies: [.byName(name: "CFrameworks"), .byName(name: "ObjCShims")]

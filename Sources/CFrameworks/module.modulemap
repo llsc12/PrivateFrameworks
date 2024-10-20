@@ -1,7 +1,3 @@
-module CalculatePrivate {
-  header "Calculate/CalculatePrivate.h"
-  export *
-}
 module DictionaryPrivate {
   header "Dictionary/DCSPrivate.h"
   export *

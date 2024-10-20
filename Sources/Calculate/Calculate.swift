@@ -5,18 +5,22 @@
 //  Created by Lakhan Lothiyi on 19/10/2024.
 //
 
-import CalculatePrivate
+import Foundation
 
-// These are really just guesses, just pass 1
-//enum {
-//  CalculateUnknown1 = 1 << 0,
-//  CalculateTreatInputAsIntegers = 1 << 1,
-//  CalculateMoreAccurate = 1 << 2
-//} CalculateFlags;
-//
-//// Returns 1 on success
-//int CalculatePerformExpression(char *expr, int significantDigits, int flags, char *answer);
+// this was easier than working with the tbd idk why
 
+func CalculatePerformExpression(_ expr: UnsafeMutablePointer<CChar>!, _ significantDigits: Int32, _ flags: Int32, _ answer: UnsafeMutablePointer<CChar>!) -> Int32 {
+  let handle = dlopen("/System/Library/PrivateFrameworks/Calculate.framework/Versions/A/Calculate", RTLD_NOW)
+  let sym = dlsym(handle, "CalculatePerformExpression")
+
+  typealias CalculateExprCall = @convention(c) (UnsafeMutablePointer<CChar>?, Int32, Int32, UnsafeMutablePointer<CChar>?) -> Int32
+  let f = unsafeBitCast(sym, to: CalculateExprCall.self)
+  let result = f(expr, significantDigits, flags, answer)
+  dlclose(handle)
+  print(result)
+  
+  return result
+}
 
 public struct CalculateFlags: OptionSet {
   public let rawValue: Int32
@@ -29,24 +33,21 @@ public struct CalculateFlags: OptionSet {
   }
 }
 
-public func CalculateExpression(_ expression: String, significantDigits: Int32 = 8, flags: CalculateFlags = []) -> String? {
-  
+func CalculateExpression(_ expression: String, significantDigits: Int32 = 8, flags: CalculateFlags = []) -> String? {
   let exprLength = expression.utf8CString.count
   let expr = UnsafeMutablePointer<CChar>.allocate(capacity: exprLength)
-  defer {
-    expr.deallocate() // Ensure memory is freed after use
-  }
-
+  defer { expr.deallocate() }
+  
   expression.utf8CString.withUnsafeBufferPointer { buffer in
     expr.initialize(from: buffer.baseAddress!, count: exprLength)
   }
   
-  let answerLength = 2048 // Assume a large enough buffer for the result
+  let answerLength = 2048
   let answer = UnsafeMutablePointer<CChar>.allocate(capacity: answerLength)
   defer { answer.deallocate() }
   
   _ = CalculatePerformExpression(expr, significantDigits, flags.rawValue, answer)
-  
+
   let result = String(cString: answer)
   
   return result
