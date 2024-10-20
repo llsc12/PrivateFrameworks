@@ -33,7 +33,7 @@ public struct CalculateFlags: OptionSet {
   }
 }
 
-func CalculateExpression(_ expression: String, significantDigits: Int32 = 8, flags: CalculateFlags = []) -> String? {
+func CalculateExpression(_ expression: String, significantDigits: Int32 = 8, flags: CalculateFlags = []) -> (succeed: Int, answer: String?) {
   let exprLength = expression.utf8CString.count
   let expr = UnsafeMutablePointer<CChar>.allocate(capacity: exprLength)
   defer { expr.deallocate() }
@@ -46,9 +46,9 @@ func CalculateExpression(_ expression: String, significantDigits: Int32 = 8, fla
   let answer = UnsafeMutablePointer<CChar>.allocate(capacity: answerLength)
   defer { answer.deallocate() }
   
-  _ = CalculatePerformExpression(expr, significantDigits, flags.rawValue, answer)
+  let succeed = CalculatePerformExpression(expr, significantDigits, flags.rawValue, answer)
 
   let result = String(cString: answer)
   
-  return result
+  return (Int(succeed), result)
 }
